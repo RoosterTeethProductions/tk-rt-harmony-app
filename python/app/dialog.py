@@ -32,7 +32,7 @@ def show_dialog(app_instance):
 
     # we pass the dialog class to this method and leave the actual construction
     # to be carried out by toolkit.
-    app_instance.engine.show_dialog("Starter Template App...", app_instance, AppDialog)
+    app_instance.engine.show_dialog("Playblast Maker", app_instance, AppDialog)
 
 
 class AppDialog(QtGui.QWidget):
@@ -56,7 +56,7 @@ class AppDialog(QtGui.QWidget):
         self._app = sgtk.platform.current_bundle()
 
         # logging happens via a standard toolkit logger
-        logger.info("Launching Starter Application...")
+        logger.info("Launching Playblast Maker...")
 
         # via the self._app handle we can for example access:
         # - The engine, via self._app.engine
@@ -64,4 +64,6 @@ class AppDialog(QtGui.QWidget):
         # - An Sgtk API instance, via self._app.sgtk
 
         # lastly, set up our very basic UI
+        self.user = sgtk.util.get_current_user(sgtk)
         self.ui.context.setText("Current Context: %s" % self._app.context)
+        self.ui.user_label.setText("Current User: {}".format(self.user["name"]))

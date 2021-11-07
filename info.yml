@@ -21,8 +21,8 @@ supported_engines:
 requires_shotgun_fields:
 
 # More verbose description of this item
-display_name: "Shotgun Pipeline Toolkit Starter"
-description: "Template App to quickly get up and running with the Shotgun Pipeline Toolkit."
+display_name: "RT Tools"
+description: "An app leveraging SGTK to deliver tools to artists that don't rely on SGTK contexts"
 
 # Required minimum versions for this item to run
 requires_shotgun_version:
