@@ -22,6 +22,7 @@ from .ui.dialog import Ui_Dialog
 logger = sgtk.platform.get_logger(__name__)
 
 
+
 def show_dialog(app_instance):
     """
     Shows the main dialog window.
@@ -44,6 +45,7 @@ class AppDialog(QtGui.QWidget):
         """
         Constructor
         """
+        self.dcc_app = sgtk.platform.current_engine().app
         # first, call the base class and let it do its thing.
         QtGui.QWidget.__init__(self)
 
@@ -65,5 +67,26 @@ class AppDialog(QtGui.QWidget):
 
         # lastly, set up our very basic UI
         self.user = sgtk.util.get_current_user(sgtk)
-        self.ui.context.setText("Current Context: %s" % self._app.context)
-        self.ui.user_label.setText("Current User: {}".format(self.user["name"]))
+        #self.ui.context.setText("Current Context: %s" % self._app.context)
+        #self.ui.user_label.setText("Current User: {}".format(self.user["name"]))
+        start_frame = self.dcc_app.get_start_frame()
+        end_frame = self.dcc_app.get_stop_frame()
+        self.ui.start_frame.setText(str(start_frame))
+        self.ui.end_frame.setText(str(end_frame))
+        self.ui.render_format.currentTextChanged.connect(self.on_render_format_change)
+        
+    def on_render_format_change(self, text):
+        if text == ".MOV":
+            self.ui.with_sound.setEnabled(True)
+            self.ui.generate_thumbnail.setEnabled(True)
+            self.ui.thumb_frame.setEnabled(True)
+            self.ui.thumb_frame_label.setEnabled(True)
+
+            self.ui.white_background.setEnabled(False)
+        else:
+            self.ui.white_background.setEnabled(True)
+
+            self.ui.with_sound.setEnabled(False)
+            self.ui.generate_thumbnail.setEnabled(False)
+            self.ui.thumb_frame.setEnabled(False)
+            self.ui.thumb_frame_label.setEnabled(False)
