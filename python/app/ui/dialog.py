@@ -13,31 +13,6 @@ class Ui_Dialog(object):
         Dialog.setObjectName("Dialog")
         Dialog.resize(431, 392)
         self.form_layout = QtGui.QVBoxLayout(Dialog)
-        """ self.header_widget = QtGui.QWidget(Dialog)
-        self.horizontalLayout = QtGui.QHBoxLayout(Dialog)
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.logo_example = QtGui.QLabel(Dialog)
-        self.logo_example.setText("")
-        self.logo_example.setPixmap(QtGui.QPixmap(":/res/sg_logo.png"))
-        self.logo_example.setObjectName("logo_example")
-        self.horizontalLayout.addWidget(self.logo_example)
-        self.context = QtGui.QLabel(Dialog)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.context.sizePolicy().hasHeightForWidth())
-        self.context.setSizePolicy(sizePolicy)
-        self.context.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
-        self.context.setObjectName("context")
-        self.horizontalLayout.addWidget(self.context)
-        self.header_widget.setLayout(self.horizontalLayout)
-        self.form_layout.addWidget(self.header_widget)
-        
-        self.user_label = QtGui.QLabel(Dialog)
-        self.user_label.setSizePolicy(sizePolicy)
-        self.context.setAlignment(QtCore.Qt.AlignCenter)
-        self.user_label.setObjectName("user_label")
-        self.form_layout.addWidget(self.user_label) """
 
         # { Start main body
         self.main_body = QtGui.QWidget(Dialog)
@@ -49,10 +24,10 @@ class Ui_Dialog(object):
         #       { Start selection options
         self.selection_options_widget = QtGui.QWidget(Dialog)
         self.selection_options_layout = QtGui.QVBoxLayout(Dialog)
+
+        self.options_label = QtGui.QLabel("Render Options")
+        self.selection_options_layout.addWidget(self.options_label)
         
-        self.render_format = QtGui.QComboBox(Dialog)
-        self.render_format.addItems([".MOV", ".PNG"])
-        self.selection_options_layout.addWidget(self.render_format)
         #           { Start start_frame
         self.start_frame_widget = QtGui.QWidget(Dialog)
         self.start_frame_layout = QtGui.QHBoxLayout(Dialog)
@@ -95,7 +70,6 @@ class Ui_Dialog(object):
         #           } End thumb_frame
 
         self.white_background = QtGui.QCheckBox("White background", Dialog)
-        self.white_background.setEnabled(False)
         self.selection_options_layout.addWidget(self.white_background)
 
         self.selection_options_widget.setLayout(self.selection_options_layout)
@@ -128,6 +102,13 @@ class Ui_Dialog(object):
         self.resolution_options_layout.addWidget(self.res_y_widget)
         #           } End resolution y
 
+        #           { Start shotgun
+        self.send_to_shotgun = QtGui.QCheckBox("Send to ShotGrid", Dialog)
+        self.task_select = QtGui.QComboBox(Dialog)
+        self.resolution_options_layout.addWidget(self.send_to_shotgun)
+        self.resolution_options_layout.addWidget(self.task_select)
+        #           } Start shotgun
+
         self.resolution_options_widget.setLayout(self.resolution_options_layout)
         self.options_layout.addWidget(self.resolution_options_widget)
         #       } end resolution options
@@ -149,6 +130,9 @@ class Ui_Dialog(object):
         self.save_widget.setLayout(self.save_layout)
         self.main_body_layout.addWidget(self.save_widget)
         #   } end save location
+
+        self.make_playblast_button = QtGui.QPushButton("Make Playblast")
+        self.main_body_layout.addWidget(self.make_playblast_button)
         
         self.main_body.setLayout(self.main_body_layout)
         self.form_layout.addWidget(self.main_body)

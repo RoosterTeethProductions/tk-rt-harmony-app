@@ -10,6 +10,7 @@
 
 
 from sgtk.platform import Application
+import sgtk
 
 
 class StgkStarterApp(Application):
@@ -40,3 +41,49 @@ class StgkStarterApp(Application):
         # now register the command with the engine
         self.engine.register_command("Playblast Maker", menu_callback)
         self.engine.register_command("Some other thing", menu_callback)
+
+    @property
+    def shotgun(self):
+        """
+        Subclassing of the shotgun property on the app base class.
+        This is a temporary arrangement to be able to time some of the shotgun calls.
+        """
+        # get the real shotgun from the application base class
+        app_shotgun = sgtk.platform.Application.shotgun.fget(self)
+        return DebugWrapperShotgun(app_shotgun, self.log_debug)
+
+class DebugWrapperShotgun(object):
+    def __init__(self, sg_instance, log_fn):
+        self._sg = sg_instance
+        self._log_fn = log_fn
+        self.config = sg_instance.config
+
+    def find(self, *args, **kwargs):
+        self._log_fn("SG API find start: %s %s" % (args, kwargs))
+        data = self._sg.find(*args, **kwargs)
+        self._log_fn("SG API find end")
+        return data
+
+    def find_one(self, *args, **kwargs):
+        self._log_fn("SG API find_one start: %s %s" % (args, kwargs))
+        data = self._sg.find_one(*args, **kwargs)
+        self._log_fn("SG API find_one end")
+        return data
+
+    def create(self, *args, **kwargs):
+        self._log_fn("SG API create start: %s %s" % (args, kwargs))
+        data = self._sg.create(*args, **kwargs)
+        self._log_fn("SG API create end")
+        return data
+
+    def update(self, *args, **kwargs):
+        self._log_fn("SG API update start: %s %s" % (args, kwargs))
+        data = self._sg.update(*args, **kwargs)
+        self._log_fn("SG API update end")
+        return data
+
+    def insert(self, *args, **kwargs):
+        self._log_fn("SG API insert start: %s %s" % (args, kwargs))
+        data = self._sg.insert(*args, **kwargs)
+        self._log_fn("SG API insert end")
+        return data
