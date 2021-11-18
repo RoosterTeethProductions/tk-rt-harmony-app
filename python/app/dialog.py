@@ -8,11 +8,13 @@
 # agreement to the Shotgun Pipeline Toolkit Source Code License. All rights
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
+from genericpath import exists
 from posixpath import normpath
 import sgtk
 import os
 import sys
 import threading
+import time
 
 # by importing QT from sgtk rather than directly, we ensure that
 # the code will be compatible with both PySide and PyQt.
@@ -22,7 +24,9 @@ from .ui.dialog import Ui_Dialog
 # standard toolkit logger
 logger = sgtk.platform.get_logger(__name__)
 
+MAX_RENDER_TIME = 10 * 60
 
+STATUS_LIST = ["wtg", "rdy", "ip", "cmpt", "rrq", "fin", "apwc", "hld", "na", "omt"]
 
 def show_dialog(app_instance):
     """
@@ -87,10 +91,11 @@ class AppDialog(QtGui.QWidget):
             self.ui.task_select.addItem("{} {}".format(task["entity"]["name"], task["content"]))
         self.ui.with_sound.setChecked(True)
         self.ui.send_to_shotgun.setChecked(True)
+        self.ui.task_status_drop.addItems(STATUS_LIST)
         self.bind_connections()
+        self.ui.task_select.currentIndexChanged.emit()
 
     def bind_connections(self):
-        #self.ui.render_format.currentTextChanged.connect(self.on_render_format_change)
         self.ui.task_select.currentIndexChanged.connect(self.task_select_changed)
         self.ui.file_dialog.clicked.connect(self.file_dialog_popup)
         self.ui.send_to_shotgun.stateChanged.connect(self.shotgun_selection_changed)
@@ -124,8 +129,9 @@ class AppDialog(QtGui.QWidget):
         return results
 
     def task_select_changed(self):
-        #self.ui.save_edit.setText(str(self.tasks[self.ui.task_select.currentIndex()]))
-        pass
+        current_task = self.tasks[self.ui.task_select.currentIndex()]
+        index = self.ui.task_status_drop.findText(current_task["sg_status_list"])
+        self.ui.task_status_drop.setCurrentIndex(index)
 
     def shotgun_selection_changed(self):
         if self.ui.send_to_shotgun.isChecked():
@@ -135,22 +141,47 @@ class AppDialog(QtGui.QWidget):
 
     def make_playblast(self):
         task = self.tasks[self.ui.task_select.currentIndex()]
+        version_name = self.dcc_app.current_version_name()
+        mov_path = os.path.join(self.ui.save_edit.text(), "{}.mov".format(version_name))
+        if os.path.exists(mov_path):
+            prompt = QtGui.QMessageBox()
+            response = prompt.question(self, "", "An MOV with the current version already exists in that location. Do you want to overwrite it?",
+                                       prompt.Yes | prompt.No)
+            if response == prompt.No:
+                return
+            else:
+                os.remove(mov_path)
+        
         self.dcc_app.render_to_quicktime(self.ui.save_edit.text(), self.ui.start_frame.text(),
                                          self.ui.end_frame.text(), self.ui.with_sound.isChecked(),
                                          self.ui.res_x_edit.text(), self.ui.res_y_edit.text(),
                                          self.ui.generate_thumbnail.isChecked(), self.ui.thumb_frame.text())
-        #norm_path = os.path.normpath(result)
-        version_name = self.dcc_app.current_version_name()
-        logger.debug(version_name)
-        # if os.path.exists(norm_path) and self.ui.send_to_shotgun.isChecked():
-        #     logger.debug("Submitting to Shotgrid")
-        #     # upload to sg
-        #     data = {
-        #         "version_name": os.path.basename(norm_path),
-        #         "task": task,
-        #         "entity": task["entity"]
-        #     }
-        #     sg_result = self._sg.create("Version", data)
-        #     self._sg.upload("Version", sg_result["id"], result, field_name="sg_uploaded_movie", 
-        #                     display_name=os.path.basename(norm_path))
+        if self.ui.send_to_shotgun.isChecked():
+            start_time = time.time()
+            while not os.path.exists(mov_path):
+                current_time = time.time()
+                if (current_time - start_time) > MAX_RENDER_TIME:
+                    prompt = QtGui.QMessageBox()
+                    response = prompt.question(self, "", "The MOV is taking a long time to render. Continue waiting?",
+                                               prompt.Yes | prompt.No)
+                    if response == prompt.No:
+                        return
+                    else:
+                        start_time = time.time()
+                else:
+                    time.sleep(5)
+
+            sg_data = {
+                "project": {"type": "Project", "id": int(self.project["id"])},
+                "code": os.path.basename(mov_path),
+                "sg_task": task,
+                "entity": task["entity"],
+                "description": "Playblast upload to SG"
+            }
+            
+            if task["sg_status_list"] != self.ui.task_status_drop.currentText():
+                self._sg.update("Task", task["id"], {"sg_status_list": self.ui.task_status_drop.currentText()})
+            sg_result = self._sg.create("Version", sg_data)
+            self._sg.upload("Version", sg_result["id"], mov_path, field_name="sg_uploaded_movie", 
+                            display_name=os.path.basename(mov_path))
 

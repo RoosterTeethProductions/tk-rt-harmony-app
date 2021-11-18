@@ -82,6 +82,12 @@ class DebugWrapperShotgun(object):
         self._log_fn("SG API update end")
         return data
 
+    def upload(self, *args, **kwargs):
+        self._log_fn("SG API upload start: %s %s" % (args, kwargs))
+        data = self._sg.upload(*args, **kwargs)
+        self._log_fn("SG API upload end")
+        return data
+
     def insert(self, *args, **kwargs):
         self._log_fn("SG API insert start: %s %s" % (args, kwargs))
         data = self._sg.insert(*args, **kwargs)

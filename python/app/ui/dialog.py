@@ -107,7 +107,15 @@ class Ui_Dialog(object):
         self.task_select = QtGui.QComboBox(Dialog)
         self.resolution_options_layout.addWidget(self.send_to_shotgun)
         self.resolution_options_layout.addWidget(self.task_select)
-        #           } Start shotgun
+        self.task_status_widget = QtGui.QWidget(Dialog)
+        self.task_status_layout = QtGui.QHBoxLayout(Dialog)
+        self.status_label = QtGui.QLabel("Task Status")
+        self.task_status_drop = QtGui.QComboBox(Dialog)
+        self.task_status_layout.addWidget(self.status_label)
+        self.task_status_layout.addWidget(self.task_status_drop)
+        self.task_status_widget.setLayout(self.task_status_layout)
+        self.resolution_options_layout.addWidget(self.task_status_widget)
+        #           } End shotgun
 
         self.resolution_options_widget.setLayout(self.resolution_options_layout)
         self.options_layout.addWidget(self.resolution_options_widget)
