@@ -69,17 +69,10 @@ class AppDialog(QtGui.QWidget):
         # now load in the UI that was created in the UI designer
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
-
         
 
         # logging happens via a standard toolkit logger
         logger.info("Launching Playblast Maker...")
-
-       
-
-        # lastly, set up our very basic UI
-        #self.ui.context.setText("Current Context: %s" % self._app.context)
-        #self.ui.user_label.setText("Current User: {}".format(self.user["name"]))
         
         start_frame = self.dcc_app.get_start_frame()
         end_frame = self.dcc_app.get_stop_frame()
@@ -93,7 +86,6 @@ class AppDialog(QtGui.QWidget):
         self.ui.send_to_shotgun.setChecked(True)
         self.ui.task_status_drop.addItems(STATUS_LIST)
         self.bind_connections()
-        self.ui.task_select.currentIndexChanged.emit()
 
     def bind_connections(self):
         self.ui.task_select.currentIndexChanged.connect(self.task_select_changed)
